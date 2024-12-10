@@ -1,0 +1,128 @@
+ <!DOCTYPE html>
+ <html lang="en">
+
+ <head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Flash PWAi</title>
+	<link rel="canonical" href="missionode.github.io/Flash/index.html" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="author" href="humans.txt" />
+	
+	<!-- Icons and Colors -->
+	<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+	<link rel="manifest" href="./manifest.json">
+	<link rel="mask-icon" href="./safari-pinned-tab.svg" color="#000000">
+	<link rel="shortcut icon" href="./favicon.ico">
+	<meta name="msapplication-TileColor" content="#000000">
+	<meta name="msapplication-TileImage" content="./mstile-144x144.png">
+	<meta name="msapplication-config" content="./browserconfig.xml">
+	<meta name="theme-color" content="#000000">
+	
+	<!-- SEO and Social Sharing and SEO -->
+	<meta name="description" content="Progressive Web App (PWA) template Flash" />
+	<meta name="robots" content="noodp" />
+	<meta name="author" content="Syamnath">
+	<meta name="keywords" content="progressive web app, progressive web application, pwa, pwa progressive web app, pwa progressive web application, progressive app, basic progressive web app, basic progressive web application, basic pwa, example progressive web app, example progressive web application, example pwa, progressive web app basic, progressive web app builder, progressive web app example, progressive web app sample, progressive web app template, sample progressive web app, sample progressive web application, sample pwa, free progressive web application template, progressive web application template, progressive web app template free, progressive web app template free download, progressive web app html template, progressive web app template github" />
+	<meta property="og:locale" content="en_IN" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Task tone" />
+	<meta property="og:description" content="Simple Progressive Web App (PWA) Task manager based on 888 " />
+	<meta property="og:url" content="missionode.github.io/Flash/index.html" />
+	<meta property="og:site_name" content="Simple PWA" />
+	<meta property="section:publisher" content="https://www.facebook.com/" />
+	<meta property="og:image" content="https://missionode.github.io/pwai/share.jpg" />
+	
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="style.css">
+
+	<!-- Javscript -->
+	<script>
+		// Service worker
+		if ("serviceWorker" in navigator) {
+			window.addEventListener("load", () => {
+				navigator.serviceWorker && navigator.serviceWorker.register("./sw.js");
+			});
+		}
+		////////
+		/////////
+		// Wake up the app while driving 
+		// Function to request Wake Lock (with native and polyfill support)
+		let wakeLock = null;
+		let wakeLockInterval = null;
+
+		async function requestWakeLock() {
+			if ('wakeLock' in navigator) {
+				try {
+					wakeLock = await navigator.wakeLock.request('screen');
+					console.log('Wake Lock is active');
+					
+					// Reapply the Wake Lock if it is released
+					wakeLock.addEventListener('release', () => {
+						console.log('Wake Lock released');
+						requestWakeLock();
+					});
+				} catch (err) {
+					console.error(`Wake Lock request failed: ${err.name}, ${err.message}`);
+				}
+			} else {
+				// Polyfill for browsers without native Wake Lock API
+				console.warn('Wake Lock API not supported. Using polyfill.');
+				startWakeLockPolyfill();
+			}
+		}
+
+		// Polyfill to prevent sleep by simulating user interaction
+		function startWakeLockPolyfill() {
+			stopWakeLockPolyfill(); // Clear any existing intervals
+			wakeLockInterval = setInterval(() => {
+				console.log('Polyfill: Simulating user activity to prevent sleep.');
+				window.focus(); // Focus the window
+				document.body.dispatchEvent(new MouseEvent('mousemove')); // Simulate activity
+			}, 15000); // Every 15 seconds
+		}
+
+		function stopWakeLockPolyfill() {
+			if (wakeLockInterval) {
+				clearInterval(wakeLockInterval);
+				wakeLockInterval = null;
+			}
+		}
+
+		// Release the Wake Lock when the app becomes inactive
+		function releaseWakeLock() {
+			if (wakeLock) {
+				wakeLock.release();
+				wakeLock = null;
+			}
+			stopWakeLockPolyfill();
+			console.log('Wake Lock released or Polyfill stopped.');
+		}
+
+		// Request Wake Lock when the page loads
+		document.addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'visible') {
+				requestWakeLock();
+			} else {
+				releaseWakeLock();
+			}
+		});
+
+		// Request Wake Lock immediately on page load
+		requestWakeLock();
+
+
+	</script>
+	<script defer src="./main.js"></script>
+ </head>
+
+ <body>
+	<h1>Daily Task Reminder</h1>
+	<p>Click "Start Reminders" to schedule notifications and alarms for the day.</p>
+	<button onclick="scheduleTasks()">Start Reminders</button>
+ </body>
+
+ </html>
